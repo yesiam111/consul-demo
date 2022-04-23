@@ -19,6 +19,9 @@ bind_addr = "0.0.0.0"
 bootstrap_expect=1
 encrypt = "qDOPBEr+/oUVeOFQOnVypxwDaHzLrD+lvjo5vCEBbZ0="
 client_addr = "0.0.0.0"
+ui_config{
+  enabled = true
+}
 EOT
 
 systemctl enable consul

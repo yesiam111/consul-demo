@@ -17,6 +17,7 @@ type User struct {
 	ID       uint64    `json:"id"`
 	Username string    `json:"username"`
 	Products []product `json:"products"`
+	URL      string    `json:"url"`
 }
 
 type product struct {
