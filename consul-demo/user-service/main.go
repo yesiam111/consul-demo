@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"math/rand"
 
 	consulapi "github.com/hashicorp/consul/api"
 )
@@ -57,15 +58,19 @@ func lookupServiceWithConsul(serviceName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	services, err := consul.Agent().Services()
-	if err != nil {
-		return "", err
+	passingOnly := true
+	serviceEntries, _, err := consul.Health().Service(serviceName, "", passingOnly, nil)
+	if len(addrs) == 0 && err == nil {
+		return nil, fmt.Errorf("service ( %s ) was not found", service)
 	}
+	if err != nil {
+		return nil, err
+	}
+	
+	instanceIdx = rand.Intn(len(addrs))
 
-	srvc := services[serviceName] // chua thong tin cua "product-service"
-
-	address := srvc.Address
-	port := srvc.Port
+	address := serviceEntries[instanceIdx].Service.Address
+	port := serviceEntries[instanceIdx].Service.Port
 	return fmt.Sprintf("http://%s:%v", address, port), nil
 }
 
