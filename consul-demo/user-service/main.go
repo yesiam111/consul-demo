@@ -56,21 +56,22 @@ func lookupServiceWithConsul(serviceName string) (string, error) {
 	config := consulapi.DefaultConfig()
 	consul, err := consulapi.NewClient(config)
 	if err != nil {
-		return "", err
+	return "", err
 	}
 	passingOnly := true
 	serviceEntries, _, err := consul.Health().Service(serviceName, "", passingOnly, nil)
-	if len(addrs) == 0 && err == nil {
-		return nil, fmt.Errorf("service ( %s ) was not found", service)
+	if len(serviceEntries) == 0 && err == nil {
+	return "", fmt.Errorf("service ( %s ) was not found", serviceName)
 	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+		return "", err
 	}
+			
+	instanceIdx := rand.Intn(len(serviceEntries))
 	
-	instanceIdx = rand.Intn(len(addrs))
-
 	address := serviceEntries[instanceIdx].Service.Address
 	port := serviceEntries[instanceIdx].Service.Port
+
 	return fmt.Sprintf("http://%s:%v", address, port), nil
 }
 
@@ -118,6 +119,7 @@ func UserProduct(w http.ResponseWriter, r *http.Request) {
 		Username: "didiyudha@gmail.com",
 	}
 	u.Products = p
+	u.URL = url
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&u)
 }

@@ -28,6 +28,6 @@ wget https://go.dev/dl/go1.18.1.linux-amd64.tar.gz
 tar xzvf go1.18.1.linux-amd64.tar.gz -C /usr/local/
 export PATH=$PATH:/usr/local/go/bin
 
-cd ${svc-name}-service
+cd consul-demo/product-service
 go mod tidy
 go run main.go &
