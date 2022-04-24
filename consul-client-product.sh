@@ -19,6 +19,7 @@ cat <<EOT >> /etc/consul.d/consul.hcl
 server = false
 encrypt = "qDOPBEr+/oUVeOFQOnVypxwDaHzLrD+lvjo5vCEBbZ0="
 retry_join = ["provider=aws tag_key=Name tag_value=consul-server"]
+
 EOT
 
 systemctl enable consul

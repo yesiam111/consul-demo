@@ -24,6 +24,7 @@ EOT
 systemctl enable consul
 systemctl start consul
 
+cd /opt
 wget https://go.dev/dl/go1.18.1.linux-amd64.tar.gz
 tar xzvf go1.18.1.linux-amd64.tar.gz -C /usr/local/
 export PATH=$PATH:/usr/local/go/bin

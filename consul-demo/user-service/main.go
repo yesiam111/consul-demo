@@ -89,16 +89,16 @@ func Configuration(key string) (bool, error) {
 		fmt.Sprintf("Error. %s", err) 
 		return false, err
 	}	
-	if kvpair.Value == nil {
+	if kvpair == nil {
 		fmt.Sprintf( "Configuration empty")
 		return false, nil
 	}
 
 
-	if string(kvpair.Value) == "enable"{
+	if string(kvpair.Value) == "enable" {
 		return true, nil
 	}
-	
+
 	return false,nil
 }
 
@@ -139,28 +139,43 @@ func UserProduct(w http.ResponseWriter, r *http.Request) {
 			ID:       1,
 			Username: "user1@gmail.com",
 		}
-	} else {
+		if err != nil {
+			fmt.Fprintf(w, "Error. %s", err)
+			return
+		}
+		defer resp.Body.Close()
+	
+		if err := json.NewDecoder(resp.Body).Decode(&p); err != nil {
+			fmt.Fprintf(w, "Error. %s", err)
+			return
+		}
+		u.Products = p
+		u.URL = url
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(&u)
+		
+	} else if new_product == true {
 		u := User{
 			ID:       2,
 			Username: "user2@gmail.com",
 		}
 		resp, err := client.Get(url + "/new-products")
+		if err != nil {
+			fmt.Fprintf(w, "Error. %s", err)
+			return
+		}
+		defer resp.Body.Close()
+	
+		if err := json.NewDecoder(resp.Body).Decode(&p); err != nil {
+			fmt.Fprintf(w, "Error. %s", err)
+			return
+		}
+		u.Products = p
+		u.URL = url
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(&u)
 	}
 
-	if err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	if err := json.NewDecoder(resp.Body).Decode(&p); err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
-		return
-	}
-	u.Products = p
-	u.URL = url
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&u)
 }
 
 // tra ve port tu bien moi truong "USER_SERVICE_PORT" | 8080

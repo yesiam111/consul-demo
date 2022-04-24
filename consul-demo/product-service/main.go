@@ -62,7 +62,7 @@ func Configuration(key string) (bool, error) {
 	}
 
 
-	if string(kvpair.Value) == "enable"{
+	if string(kvpair.Value) == "enable" {
 		return true, nil
 	}
 
@@ -127,7 +127,7 @@ func newProducts(w http.ResponseWriter, r *http.Request) {
 				ID:    0,
 				Name:  "Not released yet",
 				Price: 0,
-			}
+			},
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&products)
