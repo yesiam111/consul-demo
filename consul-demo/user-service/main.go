@@ -81,23 +81,25 @@ func Configuration(key string) (bool, error) {
 	config := consulapi.DefaultConfig()
 	consul, err := consulapi.NewClient(config)
 	if err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
+		fmt.Sprintf( "Error. %s", err)
 		return false, err
 	}
 	kvpair, _, err := consul.KV().Get(key, nil)
 	if err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
+		fmt.Sprintf("Error. %s", err) 
 		return false, err
-	}
+	}	
 	if kvpair.Value == nil {
-		fmt.Fprintf(w, "Configuration empty")
+		fmt.Sprintf( "Configuration empty")
 		return false, nil
 	}
-	//val := string(kvpair.Value)
-	//fmt.Fprintf(w, "%s", val)
-	if kvpair.Value == "enable"{
+
+
+	if string(kvpair.Value) == "enable"{
 		return true, nil
 	}
+	
+	return false,nil
 }
 
 func main() {

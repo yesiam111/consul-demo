@@ -18,12 +18,6 @@ type product struct {
 	Price float64 `json:"price"`
 }
 
-type product struct {
-	ID    uint64  `json:"id"`
-	Name  string  `json:"name"`
-	Price float64 `json:"price"`
-}
-
 func registerServiceWithConsul() {
 	config := consulapi.DefaultConfig()
 	consul, err := consulapi.NewClient(config)
@@ -54,23 +48,25 @@ func Configuration(key string) (bool, error) {
 	config := consulapi.DefaultConfig()
 	consul, err := consulapi.NewClient(config)
 	if err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
+		fmt.Sprintf( "Error. %s", err)
 		return false, err
 	}
 	kvpair, _, err := consul.KV().Get(key, nil)
 	if err != nil {
-		fmt.Fprintf(w, "Error. %s", err)
+		fmt.Sprintf("Error. %s", err) 
 		return false, err
-	}
-	if kvpair.Value == nil {
-		fmt.Fprintf(w, "Configuration empty")
+	}	
+	if kvpair == nil {
+		fmt.Sprintf( "Configuration empty")
 		return false, nil
 	}
-	//val := string(kvpair.Value)
-	//fmt.Fprintf(w, "%s", val)
-	if kvpair.Value == "enable"{
+
+
+	if string(kvpair.Value) == "enable"{
 		return true, nil
 	}
+
+	return false,nil
 }
 
 // handle url "/product"
@@ -132,6 +128,7 @@ func newProducts(w http.ResponseWriter, r *http.Request) {
 				Name:  "Not released yet",
 				Price: 0,
 			}
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&products)
 	}
