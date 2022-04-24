@@ -1,7 +1,5 @@
 #!/bin/bash
 
-svc-name=$1
-
 curl --fail --silent --show-error --location https://apt.releases.hashicorp.com/gpg | \
       gpg --dearmor | \
       sudo dd of=/usr/share/keyrings/hashicorp-archive-keyring.gpg
