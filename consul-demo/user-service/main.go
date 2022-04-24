@@ -76,6 +76,30 @@ func lookupServiceWithConsul(serviceName string) (string, error) {
 	return fmt.Sprintf("http://%s:%v", address, port), nil
 }
 
+// check key-value moi tu consuk K-V
+func Configuration(key string) (bool, error) {
+	config := consulapi.DefaultConfig()
+	consul, err := consulapi.NewClient(config)
+	if err != nil {
+		fmt.Fprintf(w, "Error. %s", err)
+		return false, err
+	}
+	kvpair, _, err := consul.KV().Get(key, nil)
+	if err != nil {
+		fmt.Fprintf(w, "Error. %s", err)
+		return false, err
+	}
+	if kvpair.Value == nil {
+		fmt.Fprintf(w, "Configuration empty")
+		return false, nil
+	}
+	//val := string(kvpair.Value)
+	//fmt.Fprintf(w, "%s", val)
+	if kvpair.Value == "enable"{
+		return true, nil
+	}
+}
+
 func main() {
 	registerServiceWithConsul()
 
@@ -98,13 +122,29 @@ func UserProduct(w http.ResponseWriter, r *http.Request) {
 
 	url, err := lookupServiceWithConsul("product-service")
 
+	new_product, _ := Configuration("new-product")
+
 	fmt.Println("URL: ", url)
 	if err != nil {
 		fmt.Fprintf(w, "Error. %s", err)
 		return
 	}
 	client := &http.Client{}
-	resp, err := client.Get(url + "/products")
+
+	if new_product == false {
+		resp, err := client.Get(url + "/products")
+		u := User{
+			ID:       1,
+			Username: "user1@gmail.com",
+		}
+	} else {
+		u := User{
+			ID:       2,
+			Username: "user2@gmail.com",
+		}
+		resp, err := client.Get(url + "/new-products")
+	}
+
 	if err != nil {
 		fmt.Fprintf(w, "Error. %s", err)
 		return
@@ -114,10 +154,6 @@ func UserProduct(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(resp.Body).Decode(&p); err != nil {
 		fmt.Fprintf(w, "Error. %s", err)
 		return
-	}
-	u := User{
-		ID:       1,
-		Username: "didiyudha@gmail.com",
 	}
 	u.Products = p
 	u.URL = url

@@ -18,8 +18,10 @@ type product struct {
 	Price float64 `json:"price"`
 }
 
-type ProductConfiguration struct {
-	Categories []string `json:"categories"`
+type product struct {
+	ID    uint64  `json:"id"`
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
 }
 
 func registerServiceWithConsul() {
@@ -47,27 +49,29 @@ func registerServiceWithConsul() {
 	consul.Agent().ServiceRegister(registration)
 }
 
-// handle url "/product-configuration"
-// func Configuration(w http.ResponseWriter, r *http.Request) {
-// 	config := consulapi.DefaultConfig()
-// 	consul, err := consulapi.NewClient(config)
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Error. %s", err)
-// 		return
-// 	}
-// 	kvpair, _, err := consul.KV().Get("product-configuration", nil)
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Error. %s", err)
-// 		return
-// 	}
-// 	if kvpair.Value == nil {
-// 		fmt.Fprintf(w, "Configuration empty")
-// 		return
-// 	}
-// 	val := string(kvpair.Value)
-// 	fmt.Fprintf(w, "%s", val)
-
-// }
+// check key-value moi tu consuk K-V
+func Configuration(key string) (bool, error) {
+	config := consulapi.DefaultConfig()
+	consul, err := consulapi.NewClient(config)
+	if err != nil {
+		fmt.Fprintf(w, "Error. %s", err)
+		return false, err
+	}
+	kvpair, _, err := consul.KV().Get(key, nil)
+	if err != nil {
+		fmt.Fprintf(w, "Error. %s", err)
+		return false, err
+	}
+	if kvpair.Value == nil {
+		fmt.Fprintf(w, "Configuration empty")
+		return false, nil
+	}
+	//val := string(kvpair.Value)
+	//fmt.Fprintf(w, "%s", val)
+	if kvpair.Value == "enable"{
+		return true, nil
+	}
+}
 
 // handle url "/product"
 func Products(w http.ResponseWriter, r *http.Request) {
@@ -102,12 +106,46 @@ func Products(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&products)
 }
 
+func newProducts(w http.ResponseWriter, r *http.Request) {
+
+	new_product, _ := Configuration("new-product")
+
+	if new_product == true {
+		products := []product{
+			{
+				ID:    1,
+				Name:  "Alienware Laptop",
+				Price: 2000000.00,
+			},
+			{
+				ID:    2,
+				Name:  "Samsung HDD",
+				Price: 500.00,
+			},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(&products)
+	} else {
+		products := []product{
+			{
+				ID:    0,
+				Name:  "Not released yet",
+				Price: 0,
+			}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(&products)
+	}
+}
+
 func main() {
 	registerServiceWithConsul()
 
 	http.HandleFunc("/healthcheck", healthcheck)
+	
 	http.HandleFunc("/products", Products)
-	// http.HandleFunc("/product-configuration", Configuration)
+	
+	http.HandleFunc("/new-products", newProducts)
+
 	fmt.Printf("product service is up on port: %s", port())
 	http.ListenAndServe(port(), nil)
 }
